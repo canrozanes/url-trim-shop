@@ -9,7 +9,7 @@ import (
 )
 
 type StubHashStore struct {
-	hashes map[string]string
+	hashes []URLHashPair
 }
 
 func (s *StubHashStore) HashURL(url string) string {
@@ -17,27 +17,35 @@ func (s *StubHashStore) HashURL(url string) string {
 }
 
 func (s *StubHashStore) GetHashFromURL(url string) string {
-	for key, val := range s.hashes {
-		if val == url {
-			return key
+	for _, urlHashPair := range s.hashes {
+		if urlHashPair.URL == url {
+			return urlHashPair.Hash
 		}
 	}
 	newHash := s.HashURL(url)
-	s.hashes[newHash] = url
+	s.hashes = append(s.hashes, URLHashPair{
+		URL:  url,
+		Hash: newHash,
+	})
 	return newHash
 }
 
 func (s *StubHashStore) GetURLFromHash(hash string) string {
-	if url, ok := s.hashes[hash]; ok {
-		return url
+	for _, urlHashPair := range s.hashes {
+		if urlHashPair.Hash == hash {
+			return urlHashPair.URL
+		}
 	}
 	return ""
 }
 
 func TestHashingServer(t *testing.T) {
 	store := StubHashStore{
-		hashes: map[string]string{
-			"xyz": "https://google.com",
+		hashes: []URLHashPair{
+			URLHashPair{
+				Hash: "xyz",
+				URL:  "https://google.com",
+			},
 		},
 	}
 	server := &HashingServer{&store}
@@ -49,7 +57,9 @@ func TestHashingServer(t *testing.T) {
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
-		assertString(t, response.Body.String(), "xyz")
+		body := readHashingResponseBody(response)
+
+		assertString(t, body.Hash, "xyz")
 		assertStatus(t, response.Code, http.StatusCreated)
 	})
 	t.Run("returns a new hash for a given url if it doesn't exist in the hash map", func(t *testing.T) {
@@ -59,8 +69,9 @@ func TestHashingServer(t *testing.T) {
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
+		body := readHashingResponseBody(response)
 
-		assertString(t, response.Body.String(), "abc")
+		assertString(t, body.Hash, "abc")
 		assertStatus(t, response.Code, http.StatusCreated)
 	})
 	t.Run("redirects to route '/[hash]', if hash exists on hash table", func(t *testing.T) {
@@ -80,7 +91,7 @@ func TestHashingServer(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		assertStatus(t, response.Code, http.StatusFound)
+		assertStatus(t, response.Code, http.StatusNotFound)
 		assertRedirectURL(t, response, "/404")
 	})
 	t.Run("returns html on route '/' ", func(t *testing.T) {
@@ -125,7 +136,7 @@ func assertRedirectURL(t *testing.T, response *httptest.ResponseRecorder, want s
 
 func newHashingRequest(url string) *http.Request {
 	body := createRequestBody(url)
-	req, _ := http.NewRequest(http.MethodPost, "/create-hash", bytes.NewBuffer(body))
+	req, _ := http.NewRequest(http.MethodPost, "/api/create-hash", bytes.NewBuffer(body))
 	return req
 }
 
@@ -148,4 +159,10 @@ func createRequestBody(url string) []byte {
 	jsonBody, _ := json.Marshal(body)
 
 	return jsonBody
+}
+
+func readHashingResponseBody(r *httptest.ResponseRecorder) URLHashPair {
+	body := URLHashPair{}
+	json.NewDecoder(r.Body).Decode(&body)
+	return body
 }
