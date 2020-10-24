@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"url-trimmer/config"
+	"url-trimmer/utils"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,28 +15,35 @@ import (
 
 const port = ":5000"
 
+// URLHashPair stores a URL and its Hash
 type URLHashPair struct {
-	Hash string `json: hash`
-	URL  string `json: "url"`
+	Hash string
+	URL  string
 }
 
-// InMemoryURLStore is temporary implementation
+// MongoURLStore stores a collection of URLHashPairs
 type MongoURLStore struct {
 	hashes *mongo.Collection
 }
 
 // HashURL hashes a given url
 func (m *MongoURLStore) HashURL(url string) string {
-	return "abc"
+	countOfRecords, err := m.hashes.CountDocuments(context.TODO(), bson.D{{}}, nil)
+	if err != nil {
+		return ""
+	}
+
+	newHash := utils.ToBase62(uint64(countOfRecords) + 1)
+
+	return newHash
 }
 
+// AddHashToStore adds hash to store
 func (m *MongoURLStore) AddHashToStore(hash string, url string) {
-	res, err := m.hashes.InsertOne(context.Background(), bson.M{"url": url, "hash": hash})
+	_, err := m.hashes.InsertOne(context.Background(), bson.M{"url": url, "hash": hash})
 	if err != nil {
 		log.Fatalf("could not add hash: %s and url: %s, %v", hash, url, err)
 	}
-	// TODO use id to create hash
-	_ = res
 	return
 }
 
@@ -80,12 +88,14 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	client := config.Connect()
+	client, cancel, ctx := config.Connect()
+	defer cancel()
+	defer client.Disconnect(ctx)
 	server := NewMongoServer(client)
 
+	fmt.Printf("Listening on port %s", port)
 	if err := http.ListenAndServe(":5000", server); err != nil {
 		log.Fatalf("could not listen on port %s %v", port, err)
 	}
 
-	fmt.Printf("Listening on port %s", port)
 }

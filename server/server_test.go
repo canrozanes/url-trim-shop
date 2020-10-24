@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"url-trimmer/utils"
 )
 
 type StubHashStore struct {
@@ -59,7 +60,7 @@ func TestHashingServer(t *testing.T) {
 		server.ServeHTTP(response, request)
 		body := readHashingResponseBody(response)
 
-		assertString(t, body.Hash, "xyz")
+		utils.AssertString(t, body.Hash, "xyz")
 		assertStatus(t, response.Code, http.StatusCreated)
 	})
 	t.Run("returns a new hash for a given url if it doesn't exist in the hash map", func(t *testing.T) {
@@ -71,7 +72,7 @@ func TestHashingServer(t *testing.T) {
 		server.ServeHTTP(response, request)
 		body := readHashingResponseBody(response)
 
-		assertString(t, body.Hash, "abc")
+		utils.AssertString(t, body.Hash, "abc")
 		assertStatus(t, response.Code, http.StatusCreated)
 	})
 	t.Run("redirects to route '/[hash]', if hash exists on hash table", func(t *testing.T) {
@@ -103,13 +104,6 @@ func TestHashingServer(t *testing.T) {
 		assertStatus(t, response.Code, http.StatusOK)
 		assertContentType(t, response, HtmlContentType)
 	})
-}
-
-func assertString(t *testing.T, got string, want string) {
-	t.Helper()
-	if got != want {
-		t.Errorf("got %q, want %q", got, want)
-	}
 }
 
 func assertStatus(t *testing.T, got, want int) {

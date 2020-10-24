@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
+	"url-trimmer/utils"
 )
 
 const HtmlContentType = "text/html; charset=UTF-8"
@@ -24,19 +24,23 @@ type HashingServer struct {
 
 func (h *HashingServer) processHashing(w http.ResponseWriter, r *http.Request) {
 	var requestBody struct{ URL string }
-	err := json.NewDecoder(r.Body).Decode(&requestBody)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+		http.Error(w, "Couldn't convert request body to JSON", http.StatusBadRequest)
+		return
 	}
-	hash := h.store.GetHashFromURL(requestBody.URL)
+	sanitizedURL, urlErr := utils.MakeURLAbsolute(requestBody.URL)
+	if urlErr != nil {
+		http.Error(w, "Bad URL", http.StatusBadRequest)
+	}
 
+	hash := h.store.GetHashFromURL(sanitizedURL)
 	body := URLHashPair{
-		URL:  requestBody.URL,
+		URL:  sanitizedURL,
 		Hash: hash,
 	}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
-		log.Fatalf("had trouble converting {URL: %s, hash: %s} to JSON, %v", requestBody.URL, hash, err)
+		http.Error(w, "Had trouble hashing", http.StatusInternalServerError)
 	}
 
 	w.Header().Set("content-type", ApplicationJSON)
@@ -52,10 +56,8 @@ func (h *HashingServer) checkHashAndRedirect(w http.ResponseWriter, r *http.Requ
 	hash := r.URL.Path[1:]
 	URL := h.store.GetURLFromHash(hash)
 	if URL == "" {
-		fmt.Println("redirect to 404")
 		http.Redirect(w, r, "/404", http.StatusNotFound)
 	} else {
-		fmt.Printf("redirect to %s", URL)
 		http.Redirect(w, r, URL, http.StatusFound)
 	}
 }
