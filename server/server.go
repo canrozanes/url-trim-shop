@@ -9,6 +9,9 @@ import (
 
 const HtmlContentType = "text/html; charset=UTF-8"
 const ApplicationJSON = "application/json"
+const TextCSS = "text/css"
+const TextJavascript = "text/javascript; charset=UTF-8"
+
 const ClientRoute = "../client/build/index.html"
 
 type HashStore interface {
@@ -56,7 +59,8 @@ func (h *HashingServer) checkHashAndRedirect(w http.ResponseWriter, r *http.Requ
 	hash := r.URL.Path[1:]
 	URL := h.store.GetURLFromHash(hash)
 	if URL == "" {
-		http.Redirect(w, r, "/404", http.StatusNotFound)
+		w.WriteHeader(http.StatusNotFound)
+		h.serveHome(w, r)
 	} else {
 		http.Redirect(w, r, URL, http.StatusFound)
 	}
@@ -73,6 +77,17 @@ func (h *HashingServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	router.Handle("/404", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		h.serveHome(w, r)
+	}))
+
+	router.Handle("/static/css/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := "../client/build" + r.URL.String()
+		w.Header().Set("content-type", TextCSS)
+		http.ServeFile(w, r, path)
+	}))
+	router.Handle("/static/js/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := "../client/build" + r.URL.String()
+		w.Header().Set("content-type", TextJavascript)
+		http.ServeFile(w, r, path)
 	}))
 
 	router.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
