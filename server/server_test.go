@@ -85,17 +85,17 @@ func TestHashingServer(t *testing.T) {
 		assertStatus(t, response.Code, http.StatusFound)
 		assertRedirectURL(t, response, "https://google.com")
 	})
-	t.Run("redirects to route '/404', if hash doesn't exist on hash table ", func(t *testing.T) {
+	t.Run("serves react app, if hash doesn't exist on hash table ", func(t *testing.T) {
 		hash := "nonsense-hash"
 		request := newRedirectRequest(hash)
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
 
-		assertStatus(t, response.Code, http.StatusNotFound)
-		assertRedirectURL(t, response, "/404")
+		assertStatus(t, response.Code, http.StatusOK)
+		assertContentType(t, response, HtmlContentType)
 	})
-	t.Run("returns html on route '/' ", func(t *testing.T) {
+	t.Run("serves react app on route '/' ", func(t *testing.T) {
 		request := newHomePageRequest()
 		response := httptest.NewRecorder()
 
@@ -116,7 +116,7 @@ func assertStatus(t *testing.T, got, want int) {
 func assertContentType(t *testing.T, response *httptest.ResponseRecorder, want string) {
 	t.Helper()
 	if response.Result().Header.Get("content-type") != want {
-		t.Errorf("response did not have content-type of %s, got %v", want, response.Result().Header)
+		t.Errorf("response did not have corrent content-type, got: %s, want: %s", want, response.Result().Header.Get("content-type"))
 	}
 }
 
