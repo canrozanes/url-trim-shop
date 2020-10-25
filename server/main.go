@@ -50,7 +50,7 @@ func (m *MongoURLStore) AddHashToStore(hash string, url string) {
 // GetHashFromURL is temporary implementation
 func (m *MongoURLStore) GetHashFromURL(url string) string {
 	urlHashPair := URLHashPair{}
-	filter := bson.D{{"url", url}}
+	filter := bson.D{{Key: "url", Value: url}}
 	err := m.hashes.FindOne(context.Background(), filter).Decode(&urlHashPair)
 	if err == mongo.ErrNoDocuments {
 		newHash := m.HashURL(url)
@@ -62,9 +62,10 @@ func (m *MongoURLStore) GetHashFromURL(url string) string {
 	return urlHashPair.Hash
 }
 
+// GetURLFromHash returns URL given hash
 func (m *MongoURLStore) GetURLFromHash(hash string) string {
 	urlHashPair := URLHashPair{}
-	filter := bson.D{{"hash", hash}}
+	filter := bson.D{{Key: "hash", Value: hash}}
 	err := m.hashes.FindOne(context.Background(), filter).Decode(&urlHashPair)
 	if err == mongo.ErrNoDocuments {
 		return ""
