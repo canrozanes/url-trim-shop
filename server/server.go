@@ -9,7 +9,7 @@ import (
 
 const HtmlContentType = "text/html; charset=UTF-8"
 const ApplicationJSON = "application/json"
-const ClientRoute = "../client/index.html"
+const ClientRoute = "../client/build/index.html"
 
 type HashStore interface {
 	GetHashFromURL(url string) string
