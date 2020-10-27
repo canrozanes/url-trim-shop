@@ -10,7 +10,6 @@ const PageContainer = styled("div")({
   minHeight: "100vh",
   display: "flex",
   flexDirection: "column",
-  position: "relative",
 })
 
 const MainContent = styled(Container)({
@@ -38,11 +37,12 @@ const MainLayout = ({ children }: LayoutProps) => (
         rel="stylesheet"
         href="https://fonts.googleapis.com/icon?family=Material+Icons"
       />
+      <title>URL-Trimmer</title>
     </Helmet>
     <PageContainer>
       <Header />
       <CssBaseline />
-      <MainContent maxWidth="xl">{children}</MainContent>
+      <MainContent>{children}</MainContent>
       <Footer />
     </PageContainer>
   </>

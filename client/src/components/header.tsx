@@ -25,8 +25,8 @@ const StyledToolbar = styled(Toolbar)({
 
 const Header = () => (
   <StyledAppBar>
-    <Container maxWidth="xl">
-      <StyledToolbar>
+    <Container>
+      <StyledToolbar disableGutters>
         <Typography variant="h4">
           <HeaderLogo to="/" color="primary">
             Trimmer.ly
