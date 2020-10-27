@@ -29,7 +29,7 @@ const Header = () => (
       <StyledToolbar disableGutters>
         <Typography variant="h4">
           <HeaderLogo to="/" color="primary">
-            Trimmer.ly
+            url-trim.shop
           </HeaderLogo>
         </Typography>
         <TopNav />

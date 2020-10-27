@@ -29,23 +29,29 @@ const StyledGrid = styled(Grid)(({ theme }) => {
   }
 })
 
+const StyledTextField = styled(TextField)({
+  maxWidth: "100%",
+})
+
 const isNotEmpty = (string: string) =>
   typeof string === "string" && string.length > 0
 
 const Form = () => {
-  const [url, setUrl] = useState("")
+  const [urlField, setUrlField] = useState("")
+  const [targetUrlField, setTargetUrlField] = useState("")
   const [shortenedUrl, setShortenedUrl] = useState("")
   const [isFetching, setIsFetching] = useState(false)
   const [isClicked, setIsClicked] = useState(false)
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUrl(event.target.value)
+    setUrlField(event.target.value)
   }
   const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
     setIsFetching(true)
+    setTargetUrlField(urlField)
     e.preventDefault()
     try {
-      const res = await postData(url)
+      const res = await postData(targetUrlField)
       setShortenedUrl(`${window.location}${res.body.Hash}`)
       setIsFetching(false)
     } catch (e) {
@@ -72,7 +78,7 @@ const Form = () => {
     <>
       <Grid container component="form" alignItems="center">
         <Grid item xs={12} md={9}>
-          <TextField
+          <StyledTextField
             label="Shorten your link"
             variant="filled"
             onChange={handleChange}
@@ -106,7 +112,7 @@ const Form = () => {
         <StyledGrid container alignItems="center">
           <Grid item xs={12} md={6}>
             <Typography variant="body1" component="span">
-              Your original URL: {url}
+              Your original URL: {`http://${targetUrlField}`}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>

@@ -16,15 +16,12 @@ const List = styled("ul")({
   alignItems: "center",
 })
 
-const ListItem = styled("li")(({ theme }) => {
-  console.log(theme)
-  return {
-    marginRight: theme.spacing(3),
-    "&:last-of-type": {
-      marginRight: 0,
-    },
-  }
-})
+const ListItem = styled("li")(({ theme }) => ({
+  marginRight: theme.spacing(3),
+  "&:last-of-type": {
+    marginRight: 0,
+  },
+}))
 
 const TopNav = () => (
   <nav>
