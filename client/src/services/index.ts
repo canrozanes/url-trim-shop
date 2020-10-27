@@ -1,5 +1,5 @@
 const postURL = async (url:string) => {
-  const rawResponse = await fetch("http://localhost:5000/api/create-hash", {
+  const rawResponse = await fetch(`${window.location}api/create-hash`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

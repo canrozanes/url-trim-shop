@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"url-trimmer/utils"
+	"url-trimmer/server/utils"
 )
 
 type StubHashStore struct {

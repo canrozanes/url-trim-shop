@@ -46,7 +46,7 @@ const Form = () => {
     e.preventDefault()
     try {
       const res = await postData(url)
-      setShortenedUrl(res.body.Hash)
+      setShortenedUrl(`${window.location}${res.body.Hash}`)
       setIsFetching(false)
     } catch (e) {
       console.log(e)

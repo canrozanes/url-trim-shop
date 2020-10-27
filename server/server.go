@@ -1,10 +1,10 @@
-package main
+package server
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"url-trimmer/utils"
+	"url-trimmer/server/utils"
 
 	"github.com/gorilla/mux"
 )
@@ -14,6 +14,12 @@ const ApplicationJSON = "application/json"
 
 const ClientRoute = "../client/build/index.html"
 
+// URLHashPair stores a URL and its Hash
+type URLHashPair struct {
+	Hash string
+	URL  string
+}
+
 type HashStore interface {
 	GetHashFromURL(url string) string
 	GetURLFromHash(hash string) string
@@ -22,7 +28,7 @@ type HashStore interface {
 
 // HashingServer implements an instance of the server
 type HashingServer struct {
-	store HashStore
+	Store HashStore
 }
 
 func (h *HashingServer) createHashHandler(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +42,7 @@ func (h *HashingServer) createHashHandler(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Bad URL", http.StatusBadRequest)
 	}
 
-	hash := h.store.GetHashFromURL(sanitizedURL)
+	hash := h.Store.GetHashFromURL(sanitizedURL)
 	body := URLHashPair{
 		URL:  sanitizedURL,
 		Hash: hash,
@@ -58,7 +64,7 @@ func (h *HashingServer) homeHandler(w http.ResponseWriter, r *http.Request) {
 func (h *HashingServer) redirectHandler(w http.ResponseWriter, r *http.Request) {
 	hash := mux.Vars(r)["hash"]
 
-	URL := h.store.GetURLFromHash(hash)
+	URL := h.Store.GetURLFromHash(hash)
 	if URL == "" {
 		h.homeHandler(w, r)
 	} else {
@@ -73,10 +79,10 @@ func (h *HashingServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	router.HandleFunc("/api/create-hash", h.createHashHandler)
 	router.HandleFunc("/{hash}", h.redirectHandler)
 
-	buildHandler := http.FileServer(http.Dir("../client/build"))
+	buildHandler := http.FileServer(http.Dir("server/build"))
 	router.PathPrefix("/").Handler(buildHandler)
 
-	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir("../client/build/static")))
+	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir("server/build/static")))
 	router.PathPrefix("/static/").Handler(staticHandler)
 
 	router.ServeHTTP(w, r)

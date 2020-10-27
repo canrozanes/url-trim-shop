@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,9 +11,7 @@ import (
 )
 
 // Connect initiates a mongo connection and returns the client
-func Connect() (*mongo.Client, context.CancelFunc, context.Context) {
-
-	mongoURI := os.Getenv("MONGO_URI")
+func Connect(mongoURI string) (*mongo.Client, context.CancelFunc, context.Context) {
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
