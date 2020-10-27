@@ -4,7 +4,6 @@ import Typography from "@material-ui/core/Typography"
 import Container from "@material-ui/core/Container"
 import AppBar from "@material-ui/core/AppBar"
 import Toolbar from "@material-ui/core/Toolbar"
-import TopNav from "./topnav"
 import { Link } from "react-router-dom"
 
 const HeaderLogo = styled(Link)(({ theme }) => ({
@@ -32,7 +31,6 @@ const Header = () => (
             url-trim.shop
           </HeaderLogo>
         </Typography>
-        <TopNav />
       </StyledToolbar>
     </Container>
   </StyledAppBar>

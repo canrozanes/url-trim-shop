@@ -6,7 +6,6 @@ import { ThemeProvider } from "@material-ui/core/styles"
 import theme from "./styles/theme"
 import NotFound from "./pages/404"
 import Home from "./pages/home"
-import About from "./pages/about"
 
 function App() {
   return (
@@ -18,9 +17,6 @@ function App() {
             <Switch>
               <Route exact path="/">
                 <Home />
-              </Route>
-              <Route exact path="/about">
-                <About />
               </Route>
               <Route>
                 <NotFound />

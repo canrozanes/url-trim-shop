@@ -8,37 +8,64 @@ import Typography from "@material-ui/core/Typography"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import postData from "../services/index"
 
-const StyledButton = styled(Button)({
-  marginLeft: "20px",
+const StyledButton = styled(Button)(({ theme }) => ({
   padding: "16px 0",
-  width: "calc(100% - 20px)",
-})
+  margin: "16px 0",
+  [theme.breakpoints.up("md")]: {
+    marginLeft: "20px",
+    width: "calc(100% - 20px)",
+    margin: "0",
+  },
+}))
 
-const SmallButton = styled(Button)({
-  marginLeft: "20px",
+const SmallButton = styled(Button)(({ theme }) => ({
   width: "100px",
-})
+  alignSelf: "center",
+  [theme.breakpoints.up("md")]: {
+    marginLeft: "20px",
+  },
+}))
 
-const StyledGrid = styled(Grid)(({ theme }) => {
-  return {
-    borderRadius: "4px",
-    border: `2px solid ${theme.palette.primary.main}`,
-    padding: "16px 20px",
-    marginTop: "20px",
-    backgroundColor: theme.palette.primary.light,
-  }
-})
+const UrlsContainer = styled("div")(({ theme }) => ({
+  borderRadius: "4px",
+  border: `2px solid ${theme.palette.primary.main}`,
+  padding: "16px 20px",
+  margin: "16px 0",
+  backgroundColor: theme.palette.primary.light,
+  [theme.breakpoints.up("md")]: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+}))
+
+const UrlCard = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  marginBottom: "16px",
+  [theme.breakpoints.up("md")]: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: "0",
+  },
+}))
 
 const StyledTextField = styled(TextField)({
   maxWidth: "100%",
 })
+
+const StyledLink = styled(Link)(({ theme }) => ({
+  [theme.breakpoints.up("md")]: {
+    marginLeft: "10px",
+  },
+}))
 
 const isNotEmpty = (string: string) =>
   typeof string === "string" && string.length > 0
 
 const Form = () => {
   const [urlField, setUrlField] = useState("")
-  const [targetUrlField, setTargetUrlField] = useState("")
+  const [originalUrlField, setOriginalUrlField] = useState("")
   const [shortenedUrl, setShortenedUrl] = useState("")
   const [isFetching, setIsFetching] = useState(false)
   const [isClicked, setIsClicked] = useState(false)
@@ -48,16 +75,16 @@ const Form = () => {
   }
   const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
     setIsFetching(true)
-    setTargetUrlField(urlField)
     e.preventDefault()
     try {
-      const res = await postData(targetUrlField)
+      const res = await postData(urlField)
       setShortenedUrl(`${window.location}${res.body.Hash}`)
       setIsFetching(false)
     } catch (e) {
       console.log(e)
       setIsFetching(false)
     }
+    setOriginalUrlField(urlField)
   }
 
   const copyToClipboard = (e: MouseEvent<HTMLButtonElement>) => {
@@ -93,6 +120,7 @@ const Form = () => {
             variant="contained"
             color="primary"
             disabled={isFetching}
+            fullWidth
             endIcon={
               isFetching ? (
                 <CircularProgress
@@ -109,32 +137,31 @@ const Form = () => {
         </Grid>
       </Grid>
       {isNotEmpty(shortenedUrl) && (
-        <StyledGrid container alignItems="center">
-          <Grid item xs={12} md={6}>
+        <UrlsContainer>
+          <UrlCard>
             <Typography variant="body1" component="span">
-              Your original URL: {`http://${targetUrlField}`}
+              Original URL:
+            </Typography>{" "}
+            <Typography variant="body1" component="span">
+              <StyledLink color="textPrimary">{`http://${originalUrlField}`}</StyledLink>
             </Typography>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Grid container justify="flex-end" alignItems="center">
-              <Grid item>
-                <Typography variant="body1" component="span" align="right">
-                  Your shortened URL:{" "}
-                  <Link href={shortenedUrl}>{shortenedUrl}</Link>
-                </Typography>
-              </Grid>
-              <Grid item>
-                <SmallButton
-                  variant="contained"
-                  color={isClicked ? "default" : "secondary"}
-                  onClick={copyToClipboard}
-                >
-                  {isClicked ? "Copied!" : "Copy"}
-                </SmallButton>
-              </Grid>
-            </Grid>
-          </Grid>
-        </StyledGrid>
+          </UrlCard>
+          <UrlCard>
+            <Typography variant="body1" component="span">
+              {"Shortened URL:  "}
+            </Typography>
+            <Typography variant="body1" component="span">
+              <StyledLink href={shortenedUrl}>{shortenedUrl}</StyledLink>
+            </Typography>
+            <SmallButton
+              variant="contained"
+              color={isClicked ? "default" : "secondary"}
+              onClick={copyToClipboard}
+            >
+              {isClicked ? "Copied!" : "Copy"}
+            </SmallButton>
+          </UrlCard>
+        </UrlsContainer>
       )}
     </>
   )

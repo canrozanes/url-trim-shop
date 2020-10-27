@@ -14,7 +14,6 @@ const PageContainer = styled("div")({
 
 const MainContent = styled(Container)({
   flex: 1,
-  display: "flex",
 })
 
 interface LayoutProps {
@@ -37,7 +36,7 @@ const MainLayout = ({ children }: LayoutProps) => (
         rel="stylesheet"
         href="https://fonts.googleapis.com/icon?family=Material+Icons"
       />
-      <title>URL-Trimmer</title>
+      <title>url-trim.shop</title>
     </Helmet>
     <PageContainer>
       <Header />

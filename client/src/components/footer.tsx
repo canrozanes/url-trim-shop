@@ -8,8 +8,6 @@ const StyledFooter = styled("footer")(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
   width: "100%",
-  position: "absolute",
-  bottom: 0,
 }))
 
 const Footer = () => (
@@ -27,7 +25,6 @@ const Footer = () => (
         </Container>
       </Toolbar>
     </StyledFooter>
-    <Box height="64px" />
   </>
 )
 
