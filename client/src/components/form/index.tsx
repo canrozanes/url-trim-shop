@@ -1,67 +1,27 @@
 import React, { useState, MouseEvent } from "react"
-import { styled } from "@material-ui/core/styles"
-import TextField from "@material-ui/core/TextField"
-import Link from "@material-ui/core/Link"
-import Button from "@material-ui/core/Button"
 import Grid from "@material-ui/core/Grid"
 import Typography from "@material-ui/core/Typography"
+import { Alert } from "@material-ui/lab"
 import CircularProgress from "@material-ui/core/CircularProgress"
-import postData from "../services/index"
+import postData from "../../services/index"
+import {
+  StyledButton,
+  SmallButton,
+  UrlCard,
+  UrlsContainer,
+  StyledTextField,
+  StyledLink,
+  StyledAlertContainer,
+} from "./styles"
 
-const StyledButton = styled(Button)(({ theme }) => ({
-  padding: "16px 0",
-  margin: "16px 0",
-  [theme.breakpoints.up("md")]: {
-    marginLeft: "20px",
-    width: "calc(100% - 20px)",
-    margin: "0",
-  },
-}))
+const isEmpty = (string: string) =>
+  typeof string === "string" && string.length === 0
 
-const SmallButton = styled(Button)(({ theme }) => ({
-  width: "100px",
-  alignSelf: "center",
-  [theme.breakpoints.up("md")]: {
-    marginLeft: "20px",
-  },
-}))
+const validUrlRegex = /(?:https?:\/\/)?(?:[a-zA-Z0-9.-]+?\.(?:[a-zA-Z])|\d+\.\d+\.\d+\.\d+)/
 
-const UrlsContainer = styled("div")(({ theme }) => ({
-  borderRadius: "4px",
-  border: `2px solid ${theme.palette.primary.main}`,
-  padding: "16px 20px",
-  margin: "16px 0",
-  backgroundColor: theme.palette.primary.light,
-  [theme.breakpoints.up("md")]: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-}))
-
-const UrlCard = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  marginBottom: "16px",
-  [theme.breakpoints.up("md")]: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: "0",
-  },
-}))
-
-const StyledTextField = styled(TextField)({
-  maxWidth: "100%",
-})
-
-const StyledLink = styled(Link)(({ theme }) => ({
-  [theme.breakpoints.up("md")]: {
-    marginLeft: "10px",
-  },
-}))
-
-const isNotEmpty = (string: string) =>
-  typeof string === "string" && string.length > 0
+export const isValidUrl = (string: string): boolean => {
+  return string.match(validUrlRegex) !== null
+}
 
 const Form = () => {
   const [urlField, setUrlField] = useState("")
@@ -69,13 +29,20 @@ const Form = () => {
   const [shortenedUrl, setShortenedUrl] = useState("")
   const [isFetching, setIsFetching] = useState(false)
   const [isClicked, setIsClicked] = useState(false)
+  const [isUrlError, setIsUrlError] = useState(false)
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUrlField(event.target.value)
   }
   const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
-    setIsFetching(true)
     e.preventDefault()
+    setIsUrlError(false)
+
+    if (!isValidUrl(urlField)) {
+      setIsUrlError(true)
+      return
+    }
+    setIsFetching(true)
     try {
       const res = await postData(urlField)
       setShortenedUrl(`${window.location}${res.body.Hash}`)
@@ -136,7 +103,12 @@ const Form = () => {
           </StyledButton>
         </Grid>
       </Grid>
-      {isNotEmpty(shortenedUrl) && (
+      {isUrlError && (
+        <StyledAlertContainer>
+          <Alert severity="error">Please submit a valid url</Alert>
+        </StyledAlertContainer>
+      )}
+      {!isEmpty(shortenedUrl) && (
         <UrlsContainer>
           <UrlCard>
             <Typography variant="body1" component="span">
