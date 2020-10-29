@@ -1,0 +1,2 @@
+client/build/* linguist-vendored=false
+server/build/* linguist-vendored=false
