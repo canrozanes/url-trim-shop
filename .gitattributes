@@ -1,2 +1,3 @@
-client/build/* linguist-vendored=false
-server/build/* linguist-vendored=false
+client/build/* linguist-vendored
+server/build/* linguist-vendored
+client/src/components/form/* linguist-vendored
