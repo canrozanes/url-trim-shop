@@ -49,7 +49,7 @@ export const StyledTextField = styled(TextField)({
   maxWidth: "100%",
 })
 
-export const StyledLink = styled(Link)(({ theme }) => ({
+export const StyledAbsoluteLink = styled("a")(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
     marginLeft: "10px",
   },

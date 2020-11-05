@@ -10,7 +10,7 @@ import {
   UrlCard,
   UrlsContainer,
   StyledTextField,
-  StyledLink,
+  StyledAbsoluteLink,
   StyledAlertContainer,
 } from "./styles"
 
@@ -45,7 +45,7 @@ const Form = () => {
     setIsFetching(true)
     try {
       const res = await postData(urlField)
-      setShortenedUrl(`${window.location}${res.body.Hash}`)
+      setShortenedUrl(`${window.location.hostname}/${res.body.Hash}`)
       setIsFetching(false)
     } catch (e) {
       console.log(e)
@@ -115,7 +115,7 @@ const Form = () => {
               Original URL:
             </Typography>{" "}
             <Typography variant="body1" component="span">
-              <StyledLink color="textPrimary">{`http://${originalUrlField}`}</StyledLink>
+              <StyledAbsoluteLink color="textPrimary">{`http://${originalUrlField}`}</StyledAbsoluteLink>
             </Typography>
           </UrlCard>
           <UrlCard>
@@ -123,7 +123,12 @@ const Form = () => {
               {"Shortened URL:  "}
             </Typography>
             <Typography variant="body1" component="span">
-              <StyledLink href={shortenedUrl}>{shortenedUrl}</StyledLink>
+              <StyledAbsoluteLink
+                href={`http://${shortenedUrl}`}
+                target="_blank"
+              >
+                {shortenedUrl}
+              </StyledAbsoluteLink>
             </Typography>
             <SmallButton
               variant="contained"
